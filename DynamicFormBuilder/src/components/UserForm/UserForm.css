@@ -1,0 +1,73 @@
+.user-form-container {
+    max-width: 500px;
+    margin: auto 40px;
+    padding: 32px 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.user-form-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #22223b;
+    text-align: center;
+}
+
+.user-form-group {
+    margin-bottom: 20px;
+}
+
+.user-form-label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #4a4e69;
+}
+
+.user-form-input,
+.user-form-select,
+.user-form-textarea {
+    padding: 10px 12px;
+    border: 1px solid #c9c9c9;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #f8f8fa;
+    transition: border 0.2s;
+}
+
+.user-form-input:focus,
+.user-form-select:focus,
+.user-form-textarea:focus {
+    border-color: #5f6dfa;
+    outline: none;
+}
+
+.user-form-error {
+    color: #e63946;
+    font-size: 0.95rem;
+    margin-top: 4px;
+}
+
+.user-form-button {
+    padding: 10px 24px;
+    background: #5f6dfa;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.user-form-button:disabled {
+    background: #bfc6fa;
+    cursor: not-allowed;
+}
+
+.user-form-button:hover:not(:disabled) {
+    background: #3d4fc3;
+}
