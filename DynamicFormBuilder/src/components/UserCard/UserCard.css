@@ -5,7 +5,6 @@
     padding: 32px 24px 24px 24px;
     max-width: 350px;
     width:350px;
-    height:350px;
     margin: 0 auto;
     font-family: 'Segoe UI', Arial, sans-serif;
 }
@@ -48,9 +47,27 @@
 }
 .user-card__bio {
     font-size: 0.9rem;
-    color: #444;
+    color: saddlebrown;
     line-height: 1.4;
-    margin: auto;
+    margin-bottom: 16px;
+}
+
+.user-card__phoneNumber {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 16px;
+}
+
+.user-card__skills {
+    margin-bottom: 16px;
+}
+.user-card__skills-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
 }
 .user-card__follow-btn{
     background-color: #0073b1;

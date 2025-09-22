@@ -21,16 +21,99 @@
 
 .user-form-label {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 8px;
+   justify-content: space-between;
+    margin-bottom: 4px;
     font-weight: 500;
     color: #4a4e69;
 }
 
+
+.user-form-phones{
+    display: flex;
+    flex-direction: column; 
+    gap: 10;
+    margin-bottom: 8; 
+}
+
+
+.user-form-phone-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;;
+}
+
+.user-form-remove-phone{
+    
+    color: #e63946;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.user-form-add-phone{
+    background-color: #5f6dfa;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 5px 24px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 8px;
+    width:100%;
+}
+
+.user-form-add-phone:disabled{
+    background-color: #babff7;
+    cursor: not-allowed;
+}
+
+.user-form-skills {
+    display: flex;
+    flex-direction: row; 
+    gap: 10px;
+    margin-bottom: 8px; 
+    margin-left:10px;
+    flex-wrap: wrap;
+}
+.user-form-skills-entry {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #f0f8ff;
+    width:fit-content;
+    height:fit-content;
+    border-radius:10px;
+    padding: 5px 10px;
+}
+
+.user-form-remove-skills {
+    color:#22223b;
+    background-color: transparent;
+    padding: 0px;
+}
+.user-form-add-skills {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:lightgray;
+    border-radius: 10px;
+    width:40px;
+    font-size:0.92em;
+    color:#000;
+}
+
+.user-form-add-skills:disabled{
+    background-color: rgb(255, 252, 252);
+    cursor: not-allowed;
+}
+
+
+
 .user-form-input,
 .user-form-select,
 .user-form-textarea {
-    padding: 10px 12px;
+    padding: 5px 12px;
     border: 1px solid #c9c9c9;
     border-radius: 6px;
     font-size: 1rem;
