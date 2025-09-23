@@ -16,22 +16,29 @@ function UserForm({ onSubmit }) {
   const [skillInput, setSkillInput] = useState("");
   const [bioError, setBioError] = useState("");
 
-  const isFormValid =
-    Object.values(form).every((val) => val.trim() !== "") && !bioError;
+
+  console.log("form",form,Object.values(form))
+  const isFormValid = Object.values(form).every((val) => {
+    if(Array.isArray(val)){
+       if(val.length === 0){
+        return false;
+       } else {
+         return val.every(item => item.trim() !== "");
+       }
+    }
+    return val.trim() !== ""
+  })&& !bioError;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "skills") {
-      setSkillInput(value);
-      return;
-    }
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const AddSkills = () => {
+  const AddSkills = (e) => {
+    e.preventDefault();
     if (skillInput.trim() !== "") {
       setForm((prev) => ({
         ...prev,
@@ -69,7 +76,7 @@ function UserForm({ onSubmit }) {
   };
 
   React.useEffect(() => {
-    console.log(form,form.phoneNumbers.length);
+    console.log("okk",form,form.phoneNumbers.length,isFormValid);
   }, [form]);
 
   return (
@@ -103,7 +110,7 @@ function UserForm({ onSubmit }) {
             onChange={handleChange}
             required
             type="text"
-            placeholder=""
+            placeholder="e.g. John Doe"
           />
         </label>
         <label className="user-form-label" style={{ fontWeight: 500 }}>
@@ -226,8 +233,7 @@ function UserForm({ onSubmit }) {
               className="user-form-input"
               value={skillInput}
               onChange={(e) => setSkillInput(e.target.value)}
-              onKeyDown={(e)=>e.key==="Enter" && AddSkills()}
-              required
+              onKeyDown={(e)=>e.key==="Enter" && AddSkills(e)}
               placeholder="e.g. React"
             />
 

@@ -12,7 +12,7 @@ function App() {
     avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
     role: "Software Engineer",
     location: "Bengaluru, Karnataka",
-    PhoneNumber:["+91-9876543210"],
+    phoneNumber:["+91-9876543210"],
     bio: "Love React & UI",
     skills: ["React", "Node.js", "TypeScript", "GraphQL"]
   });

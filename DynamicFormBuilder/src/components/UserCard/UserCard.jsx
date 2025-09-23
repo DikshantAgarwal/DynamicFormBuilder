@@ -1,7 +1,7 @@
 import React from 'react';
 import './userCard.css';
 
-const UserCard = ({ name, avatarUrl, role, location,bio ,skills, PhoneNumber }) => {
+const UserCard = ({ name, avatarUrl, role, location,bio ,skills, phoneNumbers }) => {
     return (
         <div className="user-card">
             <div className="user-card__cover"></div>
@@ -16,7 +16,7 @@ const UserCard = ({ name, avatarUrl, role, location,bio ,skills, PhoneNumber }) 
                 <div className="user-card__phones">
                     <span role="img" aria-label="phone">📞</span> Phones:
                     <ul>
-                        {PhoneNumber && PhoneNumber.map((phone, idx) => (
+                        {phoneNumbers && phoneNumbers.map((phone, idx) => (
                             <li key={idx}>{phone}</li>
                         ))}
                     </ul>
