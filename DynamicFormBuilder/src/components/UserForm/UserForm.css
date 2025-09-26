@@ -50,6 +50,11 @@
     font-size: 0.9rem;
 }
 
+.user-form-remove-phone:disabled {
+    color: lightgray;
+    cursor: not-allowed;
+}
+
 .user-form-add-phone{
     background-color: #5f6dfa;
     color: white;
@@ -80,11 +85,14 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background-color: #f0f8ff;
+    background-color: #f3f3f3;
     width:fit-content;
     height:fit-content;
-    border-radius:10px;
-    padding: 5px 10px;
+    border-radius:9999px;
+    padding: 0.3rem 0.5rem;
+}
+.user-form-skills-entry:hover{
+    background-color: #dad2d2;
 }
 
 .user-form-remove-skills {

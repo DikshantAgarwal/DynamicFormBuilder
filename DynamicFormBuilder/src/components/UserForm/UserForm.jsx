@@ -2,23 +2,64 @@ import React, { useState } from "react";
 import "./userForm.css";
 
 const initialState = {
-  name: "",
-  avatarUrl: "",
-  role: "",
-  location: "",
-  bio: "",
-  phoneNumbers: [""],
-  skills: [],
+  values:{
+    name: "",
+    avatarUrl: "",
+    role: "",
+    location: "",
+    bio: "",
+    phoneNumbers: [""],
+    skills: [],
+  },
+  dirty: {
+    name: false,
+    avatarUrl: false,
+    role: false,
+    location: false,
+    bio: false,
+    phoneNumbers: false,
+    skills: false,
+  },
+  touched: {
+    name: false,
+    avatarUrl: false,
+    role: false,
+    location: false,
+    bio: false,
+    phoneNumbers: false,
+    skills: false,
+  },
 };
+
+const initialErrorState= {
+  name: "",
+  role: "",
+  bio: "",
+  avatarUrl: "",
+  phoneNumbers: [],
+  skills: { max: false, min: false, duplicate: false },
+}
+
+const errorMessages = {
+  bio: "Bio must be at least 10 character long.",
+  name: "Too short name,atleast  3 characters required",
+  role: "min 2 characters required",
+  email:"Invalid Email format",
+  phoneNumbers:"Invalid Phone Number",
+  avatarUrl: "Invalid URL format",
+  skills: {
+    max: "Maximum 5 skills can be added",
+    min: "Atleast 1 skill is required",
+    duplicate: "Duplicate skills are not allowed",
+  }
+}
 
 function UserForm({ onSubmit }) {
   const [form, setForm] = useState(initialState);
   const [skillInput, setSkillInput] = useState("");
-  const [bioError, setBioError] = useState("");
+  const [error, setError] = useState(initialErrorState);
 
-
-  console.log("form",form,Object.values(form))
-  const isFormValid = Object.values(form).every((val) => {
+  const isFormValid = Object.values(form.values).every((val) => {
     if(Array.isArray(val)){
        if(val.length === 0){
         return false;
@@ -27,14 +68,22 @@ function UserForm({ onSubmit }) {
        }
     }
     return val.trim() !== ""
-  })&& !bioError;
+  })&& Object.values(error).every((err)=>{
+    if(typeof err === "object"){
+      return Object.values(err).every(e => e === false);
+    }
+    return err === "";
+  })
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => {
+      const values = {...prev.values}
+      const dirty = {...prev.dirty}
+      values[name] = value;
+      dirty[name] = true;
+      return {...prev,values,dirty};
+    });
   };
 
   const AddSkills = (e) => {
@@ -42,25 +91,29 @@ function UserForm({ onSubmit }) {
     if (skillInput.trim() !== "") {
       setForm((prev) => ({
         ...prev,
-        skills: prev.skills ? [...prev.skills, skillInput] : [skillInput],
+        values: {...prev.values, skills:prev.values.skills ? [...prev.values.skills, skillInput] : [skillInput]},
       }));
       setSkillInput("");
     }
+ 
   };
 
   const removeSkills = (skillToRemove) => {
     setForm((prev) => ({
       ...prev,
-      skills: prev.skills.filter((skill) => skill !== skillToRemove),
+       values: {...prev.values, skills:prev.values.skills.filter((skill) => skill !== skillToRemove)},
     }));
   };
 
   const addPhoneNumber = () => {
     setForm((prev) => {
-      if (prev.phoneNumbers.length < 3) {
+      if (prev.values.phoneNumbers.length < 3) {
+        const newValues = {...prev.values};
+        newValues.phoneNumbers = prev.values.phoneNumbers ? [...prev.values.phoneNumbers, ""] : [""];
         return {
           ...prev,
-          phoneNumbers: prev.phoneNumbers ? [...prev.phoneNumbers, ""] : [""],
+          values: {...prev.values,...newValues},
+          dirty: {...prev.dirty, phoneNumbers:true}
         };
       }
     });
@@ -69,14 +122,83 @@ function UserForm({ onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isFormValid) {
-      onSubmit(form);
+      onSubmit(form.values);
       setForm(initialState);
-      setBioError("");
+      setError("");
     }
   };
 
+  const runErrorChecks =(e)=>{
+    const { name, value } = e.target;
+    console.log("run error",name,value);
+    switch(name){
+      case "name":
+        if(value.trim().length < 3){
+          setError((prev)=>({...prev,[name]: errorMessages[`${name}`]}))
+          setForm((prev) =>({...prev,touched:{...prev.touched,name:true}}))
+        }else{
+          setError((prev)=>({...prev,[name]: ""}))
+        }
+        break;
+      case "role":
+        if(value.trim().length < 3){
+             setError((prev)=>({...prev,[name]: errorMessages[`${name}`]}))
+            setForm((prev) =>({...prev,touched:{...prev.touched,role:true}}))
+        }else{
+          setError((prev)=>({...prev,[name]: ""}))
+        }
+          break;
+      case "bio":
+        if(value.trim().length < 10){
+          setError((prev)=>({...prev,[name]: errorMessages[`${name}`]}))
+            setForm((prev) =>({...prev,touched:{...prev.touched,bio:true}}))
+        }else{
+          setError((prev)=>({...prev,[name]: ""}))
+        }
+          break;
+
+      case "avatarUrl": 
+        try {
+          new URL(value);
+           setError((prev)=>({...prev,[name]: ""}))
+        } catch{
+            setError((prev)=>({...prev,[name]: errorMessages[`${name}`]}))
+            setForm((prev) =>({...prev,touched:{...prev.touched,avatarUrl:true}}))
+        } 
+          break;
+      case "phoneNumbers":{   
+          const phoneRegex = /^\+?[0-9\s\-]{7,15}$/;
+          form.values.phoneNumbers.forEach((phone) => {
+            if (!phoneRegex.test(phone)) {
+              setError((prev)=>({...prev,[name]: errorMessages[`${name}`]}))
+              setForm((prev) =>({...prev,touched:{...prev.touched,phoneNumbers:true}}))
+            } else{
+               setError((prev)=>({...prev,[name]: ""}))
+            }
+          });
+       }
+     break;
+     case "skills":{
+            const updatedSkills = [...form.values.skills,value];
+            console.log("updatedSkills",updatedSkills);
+            setError((prev)=>({...prev,skills:{
+            ...prev.skills,
+            max: updatedSkills.length > 5,
+            min: updatedSkills.length < 1,
+            duplicate: new Set(updatedSkills.map(s => s.toLowerCase())).size !== updatedSkills.length
+            }
+            })
+          )
+     }
+    break;
+      default:
+        break;
+           
+  }
+}
+
   React.useEffect(() => {
-    console.log("okk",form,form.phoneNumbers.length,isFormValid);
+    console.log("okk",form,error,isFormValid);
   }, [form]);
 
   return (
@@ -105,46 +227,85 @@ function UserForm({ onSubmit }) {
           Name:
           <input
             name="name"
-            value={form.name}
+            value={form.values.name}
             className="user-form-input"
             onChange={handleChange}
             required
+            onBlur={runErrorChecks}
             type="text"
             placeholder="e.g. John Doe"
           />
         </label>
+        {error.name && form.dirty.name && form.touched.name && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "0.9em",
+              marginTop: -12,
+              marginBottom: 8,
+            }}
+          >
+            {error.name}
+          </div>
+        )}
         <label className="user-form-label" style={{ fontWeight: 500 }}>
           Avatar URL:
           <input
             name="avatarUrl"
-            value={form.avatarUrl}
+            value={form.values.avatarUrl}
             className="user-form-input"
             onChange={handleChange}
             required
             type="url"
+            onBlur={runErrorChecks}
             placeholder="https://example.com/avatar.jpg"
           />
         </label>
+        {error.avatarUrl&& form.dirty.avatarUrl && form.touched.avatarUrl && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "0.9em",
+              marginTop: -12,
+              marginBottom: 8,
+            }}
+          >
+            {errorMessages.avatarUrl}
+          </div>
+        )}
         <label className="user-form-label" style={{ fontWeight: 500 }}>
           Role:
           <input
             name="role"
-            value={form.role}
+            value={form.values.role}
             className="user-form-input"
             onChange={handleChange}
+             onBlur={runErrorChecks}
             required
             type="text"
             placeholder="e.g. Software Engineer"
           />
         </label>
+        {form.dirty.role && form.touched.role && error.role && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "0.9em",
+              marginTop: -12,
+              marginBottom: 8,
+            }}
+          >
+            {errorMessages.role}
+          </div>
+        )}
         <label className="user-form-label" style={{ fontWeight: 500 }}>
           Location:
           <input
             name="location"
             className="user-form-input"
-            value={form.location}
+            value={form.values.location}
             onChange={handleChange}
-            required
+             onBlur={runErrorChecks}
             type="text"
             placeholder="e.g. Bengaluru, Karnataka"
           />
@@ -154,13 +315,14 @@ function UserForm({ onSubmit }) {
           <textarea
             name="bio"
             className="user-form-input"
-            value={form.bio}
+            value={form.values.bio}
             onChange={handleChange}
+            onBlur={runErrorChecks}
             placeholder="A short bio about yourself"
             required
           />
         </label>
-        {bioError && (
+        {form.dirty.bio && form.touched.bio && error.bio && (
           <div
             style={{
               color: "red",
@@ -169,7 +331,7 @@ function UserForm({ onSubmit }) {
               marginBottom: 8,
             }}
           >
-            {bioError}
+            {errorMessages.bio}
           </div>
         )}
 
@@ -177,20 +339,22 @@ function UserForm({ onSubmit }) {
           Phone Numbers:
         </label>
         <div className="user-form-phones">
-          {form.phoneNumbers && form.phoneNumbers.length > 0 && form.phoneNumbers.map((phone, idx) => (
+          {form.values.phoneNumbers && form.values.phoneNumbers.length > 0 && form.values.phoneNumbers.map((phone, idx) => (
                 <div key={idx} className="user-form-phone-entry">
                   <input
-                    name={`phoneNumber-${idx}`}
-                    type="tel"
-                    
+                    name="phoneNumbers"
+                    type="tel" 
                     className="user-form-input"
                     value={phone}
+                    onBlur={runErrorChecks}
                     onChange={(e)=>{
                         const {value} = e.target;
                         setForm((prev)=>{
-                            const updatedPhones = [...prev.phoneNumbers];
+                            const updatedPhones = [...prev.values.phoneNumbers];
+                            const dirty = {...prev.dirty};
+                            dirty.phoneNumbers = true;
                             updatedPhones[idx] = value;
-                            return {...prev, phoneNumbers: updatedPhones};
+                            return {...prev, values: {...prev.values, phoneNumbers: updatedPhones}, dirty};
                         })
 
                     }}
@@ -202,12 +366,13 @@ function UserForm({ onSubmit }) {
                     onClick={() => {
                       setForm((prev) => ({
                         ...prev,
-                        phoneNumbers: prev.phoneNumbers.filter(
+                        values: {...prev.values , phoneNumbers: prev.values.phoneNumbers.filter(
                           (_, i) => i !== idx
                         ),
+                      }
                       }));
                     }}
-                    disabled={form.phoneNumbers.length === 1}
+                    disabled={form.values.phoneNumbers.length === 1}
                     className="user-form-remove-phone"
                   >
                     Remove
@@ -218,11 +383,23 @@ function UserForm({ onSubmit }) {
         <button
           type="button"
           onClick={addPhoneNumber}
-          disabled={form.phoneNumbers && form.phoneNumbers.length >= 3}
+          disabled={form.values.phoneNumbers && form.values.phoneNumbers.length >= 3}
           className="user-form-add-phone"
         >
           Add Phone Number
         </button>
+        {form.dirty.phoneNumbers && form.touched.phoneNumbers && error.phoneNumbers && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "0.9em",
+              marginTop: -12,
+              marginBottom: 8,
+            }}
+          >
+            {errorMessages.phoneNumbers}
+          </div>
+        )}
 
         <label className="user-form-label">
           Skills:
@@ -232,7 +409,9 @@ function UserForm({ onSubmit }) {
               type="text"
               className="user-form-input"
               value={skillInput}
-              onChange={(e) => setSkillInput(e.target.value)}
+              onBlur={runErrorChecks}
+              onChange={(e) => {setSkillInput(e.target.value); setForm((prev)=>{const dirty = {...prev.dirty}; dirty.skills = true; return {...prev, dirty};})}}
+              disabled = {form.values.skills && form.values.skills.length >=5}
               onKeyDown={(e)=>e.key==="Enter" && AddSkills(e)}
               placeholder="e.g. React"
             />
@@ -240,9 +419,8 @@ function UserForm({ onSubmit }) {
                 <button
                   type="button"
                   onClick={AddSkills}
-           
                   className="user-form-add-skills"
-                  disabled={form.skills && form.skills.length >= 5 ||   skillInput.trim() === ""}
+                  disabled={form.values.skills && form.values.skills.length >= 5 ||   skillInput.trim() === ""}
                 >
                   Add
                 </button>
@@ -250,8 +428,8 @@ function UserForm({ onSubmit }) {
         </label>
 
         <div className="user-form-skills">
-          {form.skills && form.skills.length > 0
-            ? form.skills.map((skill, idx) => (
+          {form.values.skills && form.values.skills.length > 0
+            ? form.values.skills.map((skill, idx) => (
                 <div key={idx} className="user-form-skills-entry">
                   <span>{skill}</span>
                   <button
@@ -266,21 +444,25 @@ function UserForm({ onSubmit }) {
             : null}
         </div>
 
+        {error.skills && (
+          <div
+            style={{
+              color: "red",
+              fontSize: "0.9em",
+              marginTop: -12,
+              marginBottom: 8,
+            }}
+          >
+            {error.skills.min && <div>{errorMessages.skills.min}</div>}
+            {error.skills.max && <div>{errorMessages.skills.max}</div>}
+            {error.skills.duplicate && <div>{errorMessages.skills.duplicate}</div>}
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={!isFormValid}
           className="user-form-button"
-          style={{
-            marginTop: 18,
-            background: isFormValid ? "#52c41a" : "#ccc",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            padding: "10px 0",
-            fontWeight: 600,
-            fontSize: 16,
-            cursor: isFormValid ? "pointer" : "not-allowed",
-          }}
         >
           Submit
         </button>
