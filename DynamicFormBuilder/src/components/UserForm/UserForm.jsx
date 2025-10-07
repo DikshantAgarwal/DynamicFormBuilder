@@ -130,7 +130,6 @@ function UserForm({ onSubmit }) {
 
   const runErrorChecks =(e)=>{
     const { name, value } = e.target;
-    console.log("run error",name,value);
     switch(name){
       case "name":
         if(value.trim().length < 3){
@@ -180,7 +179,6 @@ function UserForm({ onSubmit }) {
      break;
      case "skills":{
             const updatedSkills = [...form.values.skills,value];
-            console.log("updatedSkills",updatedSkills);
             setError((prev)=>({...prev,skills:{
             ...prev.skills,
             max: updatedSkills.length > 5,
@@ -197,9 +195,9 @@ function UserForm({ onSubmit }) {
   }
 }
 
-  React.useEffect(() => {
-    console.log("okk",form,error,isFormValid);
-  }, [form]);
+const inputClassName = (name) =>{
+  return `user-form-input ${error[name] && form.dirty[name] && form.touched[name]? "input-error":""}`
+}
 
   return (
     <form
@@ -228,7 +226,7 @@ function UserForm({ onSubmit }) {
           <input
             name="name"
             value={form.values.name}
-            className="user-form-input"
+            className={inputClassName("name")}
             onChange={handleChange}
             required
             onBlur={runErrorChecks}
@@ -253,7 +251,7 @@ function UserForm({ onSubmit }) {
           <input
             name="avatarUrl"
             value={form.values.avatarUrl}
-            className="user-form-input"
+            className={inputClassName("avatarUrl")}
             onChange={handleChange}
             required
             type="url"
@@ -261,7 +259,7 @@ function UserForm({ onSubmit }) {
             placeholder="https://example.com/avatar.jpg"
           />
         </label>
-        {error.avatarUrl&& form.dirty.avatarUrl && form.touched.avatarUrl && (
+        {error.avatarUrl && form.dirty.avatarUrl && form.touched.avatarUrl && (
           <div
             style={{
               color: "red",
@@ -278,7 +276,7 @@ function UserForm({ onSubmit }) {
           <input
             name="role"
             value={form.values.role}
-            className="user-form-input"
+            className={inputClassName("role")}
             onChange={handleChange}
              onBlur={runErrorChecks}
             required
@@ -302,7 +300,7 @@ function UserForm({ onSubmit }) {
           Location:
           <input
             name="location"
-            className="user-form-input"
+            className={inputClassName("location")}
             value={form.values.location}
             onChange={handleChange}
              onBlur={runErrorChecks}
@@ -314,7 +312,7 @@ function UserForm({ onSubmit }) {
           Bio:
           <textarea
             name="bio"
-            className="user-form-input"
+            className={inputClassName("bio")}
             value={form.values.bio}
             onChange={handleChange}
             onBlur={runErrorChecks}
@@ -344,7 +342,7 @@ function UserForm({ onSubmit }) {
                   <input
                     name="phoneNumbers"
                     type="tel" 
-                    className="user-form-input"
+                      className={inputClassName("phoneNumbers")}
                     value={phone}
                     onBlur={runErrorChecks}
                     onChange={(e)=>{
@@ -407,7 +405,7 @@ function UserForm({ onSubmit }) {
             <input
               name="skills"
               type="text"
-              className="user-form-input"
+              className={inputClassName("skills")}
               value={skillInput}
               onBlur={runErrorChecks}
               onChange={(e) => {setSkillInput(e.target.value); setForm((prev)=>{const dirty = {...prev.dirty}; dirty.skills = true; return {...prev, dirty};})}}

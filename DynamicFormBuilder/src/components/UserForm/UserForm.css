@@ -135,6 +135,9 @@
     border-color: #5f6dfa;
     outline: none;
 }
+.input-error{
+    border: 1px solid rgb(219, 49, 49);
+}
 
 .user-form-error {
     color: #e63946;
