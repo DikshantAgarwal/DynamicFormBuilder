@@ -30,12 +30,12 @@ const initialState = {
 };
 
 
-function useUserForm(onSubmit) {
+function useUserForm() {
   const [form, setForm] = useState(
     () =>
       JSON.parse(window.localStorage.getItem("userformData")) || initialState
   );
-  const [skillInput, setSkillInput] = useState("");
+ 
  
 
   const handleChange = (e) => {
@@ -49,31 +49,6 @@ function useUserForm(onSubmit) {
     });
   };
 
-  const AddSkills = (e) => {
-    e.preventDefault();
-    if (skillInput.trim() !== "") {
-      setForm((prev) => ({
-        ...prev,
-        values: {
-          ...prev.values,
-          skills: prev.values.skills
-            ? [...prev.values.skills, skillInput]
-            : [skillInput],
-        },
-      }));
-      setSkillInput("");
-    }
-  };
-
-  const removeSkills = (idx) => {
-    setForm((prev) => ({
-      ...prev,
-      values: {
-        ...prev.values,
-        skills: prev.values.skills.filter((_,id) => id !== idx),
-      },
-    }));
-  };
 
   const addPhoneNumber = () => {
     setForm((prev) => {
@@ -98,12 +73,8 @@ function useUserForm(onSubmit) {
     form,
     setForm,
     handleChange,
-    AddSkills,
-    removeSkills,
     addPhoneNumber,
     initialState,
-    skillInput,
-    setSkillInput,
   };
 }
 

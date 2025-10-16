@@ -1,21 +1,21 @@
+import { PhoneNumberFields } from "./PhoneNumberFields";
+import { SkillsField } from "./SkillField";
+import { useSkillsField } from "../../hooks";
 const FormField = ({
   label,
   value,
+  formState,
   onchange,
-  onBlur,
-  isError,
-  errorMessages,
   className,
+  onBlur,
+  validation,
   addPhoneNumber,
-  form,
-  updateForm,
-  skillInput,
-  setSkillInput,
-  AddSkills,
-  removeSkills,
-  error,
 }) => {
+  const { form, setForm } = formState;
+  const { error, errorMessages } = validation;
+  const isError = error[label] && form.dirty[label] && form.touched[label];
 
+  const { removeSkills } = useSkillsField(setForm);
   const fields = (label) => {
     switch (label) {
       case "bio":
@@ -32,122 +32,23 @@ const FormField = ({
         );
       case "phoneNumbers":
         return (
-          <>
-            <div className="user-form-phones">
-              {form.values.phoneNumbers &&
-                form.values.phoneNumbers.length > 0 &&
-                form.values.phoneNumbers.map((phone, idx) => (
-                  <div key={idx} className="user-form-phone-entry">
-                    <input
-                      name="phoneNumbers"
-                      type="tel"
-                      className={className}
-                      value={phone}
-                      onBlur={onBlur}
-                      onChange={(e) => {
-                        const { value } = e.target;
-                        updateForm((prev) => {
-                          const updatedPhones = [...prev.values.phoneNumbers];
-                          const dirty = { ...prev.dirty };
-                          dirty.phoneNumbers = true;
-                          updatedPhones[idx] = value;
-                          return {
-                            ...prev,
-                            values: {
-                              ...prev.values,
-                              phoneNumbers: updatedPhones,
-                            },
-                            dirty,
-                          };
-                        });
-                      }}
-                      required
-                      placeholder="+91-9876543210"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updateForm((prev) => ({
-                          ...prev,
-                          values: {
-                            ...prev.values,
-                            phoneNumbers: prev.values.phoneNumbers.filter(
-                              (_, i) => i !== idx
-                            ),
-                          },
-                        }));
-                      }}
-                      disabled={form.values.phoneNumbers.length === 1}
-                      className="user-form-remove-phone"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-            </div>
-            <button
-              type="button"
-              onClick={addPhoneNumber}
-              disabled={
-                form.values.phoneNumbers && form.values.phoneNumbers.length >= 3
-              }
-              className="user-form-add-phone"
-            >
-              Add Phone Number
-            </button>
-          </>
+          <PhoneNumberFields
+            className={className}
+            onBlur={onBlur}
+            updateForm={setForm}
+            form={form}
+          />
         );
       case "skills":
         return (
-          <div className="user-form-skills">
-            <input
-              name="skills"
-              type="text"
-              className={className}
-              value={skillInput}
-              onBlur={onBlur}
-              onChange={(e) => {
-                setSkillInput(e.target.value);
-                updateForm((prev) => {
-                  const dirty = { ...prev.dirty };
-                  dirty.skills = true;
-                  return { ...prev, dirty };
-                });
-              }}
-              disabled={form.values.skills && form.values.skills.length >= 5}
-              onKeyDown={(e) => e.key === "Enter" && AddSkills(e)}
-              placeholder="e.g. React"
-            />
-
-            <button
-              type="button"
-              onClick={AddSkills}
-              className="user-form-add-skills"
-              disabled={
-                (form.values.skills && form.values.skills.length >= 5) ||
-                skillInput.trim() === ""
-              }
-            >
-              Add
-            </button>
-            
-        <div className="user-form-skills">
-          {form.values.skills && form.values.skills.length > 0
-            ? form.values.skills.map((skill, idx) => (
-                <div key={idx} className="user-form-skills-entry">
-                  <span>{skill}</span>
-                  <button
-                    type="button"
-                    onClick={() => {removeSkills(idx)}}
-                    className="user-form-remove-skills"
-                  >
-                    X
-                  </button>
-                </div>
-              ))
-            : null}
-        </div>
-          </div>
+          <SkillsField
+            form={form}
+            updateForm={setForm}
+            onBlur={onBlur}
+            className={className}
+            error={error.skills}
+            errorMessages={errorMessages}
+          />
         );
 
       default:
@@ -164,11 +65,52 @@ const FormField = ({
         );
     }
   };
+
   return (
     <>
-      <label className="user-form-label" style={{ fontWeight: 500 }}>
+      <label
+        className={
+          label === "skills" ? "user-form-label--skills" : "user-form-label"
+        }
+        style={{ fontWeight: 500 }}
+      >
         {label}:{fields(label)}
       </label>
+
+      {label === "phoneNumbers" && (
+        <button
+          type="button"
+          onClick={addPhoneNumber}
+          disabled={
+            form.values.phoneNumbers && form.values.phoneNumbers.length >= 3
+          }
+          className="user-form-add-phone"
+        >
+          Add Phone Number
+        </button>
+      )}
+
+      {label === "skills" && (
+        <div className="user-form-skills">
+          {form.values.skills && form.values.skills.length > 0
+            ? form.values.skills.map((skill, idx) => (
+                <div key={idx} className="user-form-skills-entry">
+                  <span>{skill}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removeSkills(idx);
+                    }}
+                    className="user-form-remove-skills"
+                  >
+                    x
+                  </button>
+                </div>
+              ))
+            : null}
+        </div>
+      )}
+
       {isError && (
         <div
           style={{
@@ -182,12 +124,10 @@ const FormField = ({
             <>
               {error.skills.min && <div>{errorMessages.min}</div>}
               {error.skills.max && <div>{errorMessages.max}</div>}
-              {error.skills.duplicate && (
-                <div>{errorMessages.duplicate}</div>
-              )}
+              {error.skills.duplicate && <div>{errorMessages.duplicate}</div>}
             </>
           ) : (
-            errorMessages
+            errorMessages[label]
           )}
         </div>
       )}

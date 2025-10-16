@@ -62,8 +62,8 @@ function useUserValidation(form, setForm) {
         ? validator([...form.values.skills,value])
         : validator(name === "phoneNumbers" ? form.values.phoneNumbers : value);
         console.log(errorResult,value,value.trim.length)
-    setError((prev) => ({ ...prev, [name]: errorResult }));
-    setForm((prev) => ({
+        setError((prev) => ({ ...prev, [name]: errorResult }));
+        setForm((prev) => ({
       ...prev,
       touched: { ...prev.touched, [name]: true },
     }));

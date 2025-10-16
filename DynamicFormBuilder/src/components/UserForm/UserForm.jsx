@@ -13,13 +13,11 @@ const formSchema = [
     "skills",
 ]
 
-function UserForm({ onSubmit }) {
+function UserForm({ onSubmit }) {  
   const {
     form,
     setForm,
     handleChange,
-    AddSkills,
-    removeSkills,
     addPhoneNumber,
     initialState,
     skillInput,
@@ -39,7 +37,7 @@ function UserForm({ onSubmit }) {
     if (isFormValid) {
       onSubmit(form.values);
       window.localStorage.setItem("userformData", JSON.stringify(form));
-      setForm(initialState);
+      setForm(() => JSON.parse(JSON.stringify(initialState)));
       // setError("");
     }
   };
@@ -68,18 +66,12 @@ function UserForm({ onSubmit }) {
           return <FormField
                   label={fieldName}
                   value={form.values[fieldName]}
-                  form = {form}
-                  updateForm={setForm}
+                  formState= {{form,setForm}}
                   onchange={handleChange}
                   className={inputClassName(fieldName)}
                   onBlur={runErrorChecks}
-                  isError ={error[fieldName] && form.dirty[fieldName] && form.touched[fieldName] }
-                  errorMessages= { errorMessages[fieldName]}
+                  validation ={{error,errorMessages}}
                   addPhoneNumber ={addPhoneNumber}
-                  skillInput={skillInput}
-                  error={error}
-                  removeSkills={removeSkills}
-                  setSkillInput={setSkillInput}
           />
         })
        }  
