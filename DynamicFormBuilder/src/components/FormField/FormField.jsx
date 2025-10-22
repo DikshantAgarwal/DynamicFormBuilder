@@ -1,31 +1,47 @@
+import React from 'react'
 import { PhoneNumberFields } from "./PhoneNumberFields";
+import { useUserValidation } from "../../hooks";
 import { SkillsField } from "./SkillField";
-import { useSkillsField } from "../../hooks";
+
 const FormField = ({
   label,
   value,
   formState,
   onchange,
-  className,
-  onBlur,
-  validation,
-  addPhoneNumber,
 }) => {
   const { form, setForm } = formState;
-  const { error, errorMessages } = validation;
-  const isError = error[label] && form.dirty[label] && form.touched[label];
+  const { runErrorChecks,  errorMessages, error } = useUserValidation(form, setForm);
 
-  const { removeSkills } = useSkillsField(setForm);
+  const inputClassName = () => {
+    return `user-form-input ${
+      isError() ? "input-error" : ""
+    }`;
+  };
+
+ 
+  const isError = () =>{
+    const isFieldVisited =  form.dirty[label] && form.touched[label];
+
+    if(Array.isArray(error[label])){
+      return error[label].length > 0 && isFieldVisited
+    }
+    if(typeof error[label] ==="object" &&  error[label] !== null) {
+     return  Object.values(error[label]).some((s)=>s)
+     
+    }
+    return error[label] && isFieldVisited;
+  }
+
   const fields = (label) => {
     switch (label) {
       case "bio":
         return (
           <textarea
             name="bio"
-            className={className}
+            className={inputClassName()}
             value={value}
             onChange={onchange}
-            onBlur={onBlur}
+            onBlur={runErrorChecks}
             placeholder="A short bio about yourself"
             required
           />
@@ -33,8 +49,8 @@ const FormField = ({
       case "phoneNumbers":
         return (
           <PhoneNumberFields
-            className={className}
-            onBlur={onBlur}
+            className={inputClassName()}
+            onBlur={runErrorChecks}
             updateForm={setForm}
             form={form}
           />
@@ -44,8 +60,8 @@ const FormField = ({
           <SkillsField
             form={form}
             updateForm={setForm}
-            onBlur={onBlur}
-            className={className}
+            onBlur={runErrorChecks}
+            className={inputClassName()}
             error={error.skills}
             errorMessages={errorMessages}
           />
@@ -56,9 +72,9 @@ const FormField = ({
           <input
             name={label}
             type="text"
-            className={className}
+            className={inputClassName()}
             value={value}
-            onBlur={onBlur}
+            onBlur={runErrorChecks}
             onChange={onchange}
             required
           />
@@ -72,46 +88,12 @@ const FormField = ({
         className={
           label === "skills" ? "user-form-label--skills" : "user-form-label"
         }
-        style={{ fontWeight: 500 }}
       >
-        {label}:{fields(label)}
+        <span>{label}:</span>
+        <span>{fields(label)}</span>
       </label>
 
-      {label === "phoneNumbers" && (
-        <button
-          type="button"
-          onClick={addPhoneNumber}
-          disabled={
-            form.values.phoneNumbers && form.values.phoneNumbers.length >= 3
-          }
-          className="user-form-add-phone"
-        >
-          Add Phone Number
-        </button>
-      )}
-
-      {label === "skills" && (
-        <div className="user-form-skills">
-          {form.values.skills && form.values.skills.length > 0
-            ? form.values.skills.map((skill, idx) => (
-                <div key={idx} className="user-form-skills-entry">
-                  <span>{skill}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      removeSkills(idx);
-                    }}
-                    className="user-form-remove-skills"
-                  >
-                    x
-                  </button>
-                </div>
-              ))
-            : null}
-        </div>
-      )}
-
-      {isError && (
+      {isError() && (
         <div
           style={{
             color: "red",
@@ -122,9 +104,11 @@ const FormField = ({
         >
           {label === "skills" ? (
             <>
-              {error.skills.min && <div>{errorMessages.min}</div>}
-              {error.skills.max && <div>{errorMessages.max}</div>}
-              {error.skills.duplicate && <div>{errorMessages.duplicate}</div>}
+              {error.skills.min && <div>{errorMessages.skills.min}</div>}
+              {error.skills.max && <div>{errorMessages.skills.max}</div>}
+              {error.skills.duplicate && (
+                <div>{errorMessages.skills.duplicate}</div>
+              )}
             </>
           ) : (
             errorMessages[label]

@@ -1,4 +1,26 @@
-const PhoneNumberFields = ({ className, onBlur, updateForm, form  }) => {
+const PhoneNumberFields = ({
+  className,
+  onBlur,
+  updateForm,
+  form,
+  setForm,
+}) => {
+  const addPhoneNumber = () => {
+    setForm((prev) => {
+      if (prev.values.phoneNumbers.length < 3) {
+        const newValues = { ...prev.values };
+        newValues.phoneNumbers = prev.values.phoneNumbers
+          ? [...prev.values.phoneNumbers, ""]
+          : [""];
+        return {
+          ...prev,
+          values: { ...prev.values, ...newValues },
+          dirty: { ...prev.dirty, phoneNumbers: true },
+        };
+      }
+    });
+  };
+
   return (
     <>
       <div className="user-form-phones">
@@ -53,6 +75,16 @@ const PhoneNumberFields = ({ className, onBlur, updateForm, form  }) => {
             </div>
           ))}
       </div>
+      <button
+        type="button"
+        onClick={addPhoneNumber}
+        disabled={
+          form.values.phoneNumbers && form.values.phoneNumbers.length >= 3
+        }
+        className="user-form-add-phone"
+      >
+        Add Phone Number
+      </button>
     </>
   );
 };

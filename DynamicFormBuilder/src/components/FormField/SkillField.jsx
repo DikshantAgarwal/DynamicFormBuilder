@@ -1,14 +1,9 @@
 import { useSkillsField } from "../../hooks";
-import React from 'react';
-const SkillsField = ({
-  className,
-  onBlur,
-  updateForm,
-  form,
-}) => {
-  
-  const {addSkills,skillInput,setSkillInput} = useSkillsField(updateForm)
-   return (
+
+const SkillsField = ({ className, onBlur, updateForm, form }) => {
+  const { addSkills, skillInput, removeSkills, setSkillInput } =
+    useSkillsField(updateForm);
+  return (
     <>
       <div className="user-form-skills">
         <input
@@ -41,6 +36,24 @@ const SkillsField = ({
         >
           Add
         </button>
+      </div>
+      <div className="user-form-skills">
+        {form.values.skills && form.values.skills.length > 0
+          ? form.values.skills.map((skill, idx) => (
+              <div key={idx} className="user-form-skills-entry">
+                <span>{skill}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    removeSkills(idx);
+                  }}
+                  className="user-form-remove-skills"
+                >
+                  x
+                </button>
+              </div>
+            ))
+          : null}
       </div>
     </>
   );

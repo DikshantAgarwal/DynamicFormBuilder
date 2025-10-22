@@ -50,30 +50,11 @@ function useUserForm() {
   };
 
 
-  const addPhoneNumber = () => {
-    setForm((prev) => {
-      if (prev.values.phoneNumbers.length < 3) {
-        const newValues = { ...prev.values };
-        newValues.phoneNumbers = prev.values.phoneNumbers
-          ? [...prev.values.phoneNumbers, ""]
-          : [""];
-        return {
-          ...prev,
-          values: { ...prev.values, ...newValues },
-          dirty: { ...prev.dirty, phoneNumbers: true },
-        };
-      }
-    });
-  };
-
-
-
 
   return {
     form,
     setForm,
     handleChange,
-    addPhoneNumber,
     initialState,
   };
 }

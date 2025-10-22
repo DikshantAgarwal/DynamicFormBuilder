@@ -2,39 +2,26 @@ import { useUserForm, useUserValidation } from "../../hooks";
 import { FormField } from "../FormField/FormField";
 import "./userForm.css";
 
-
 const formSchema = [
-    "name",
-    "avatarUrl",
-    "role",
-    "location",
-    "bio",
-    "phoneNumbers",
-    "skills",
-]
+  "name",
+  "avatarUrl",
+  "role",
+  "location",
+  "bio",
+  "phoneNumbers",
+  "skills",
+];
 
-function UserForm({ onSubmit }) {  
-  const {
-    form,
-    setForm,
-    handleChange,
-    addPhoneNumber,
-    initialState,
-    skillInput,
-    setSkillInput,
-  } = useUserForm();
-  const { runErrorChecks, isFormValid, errorMessages, error } =
-    useUserValidation(form, setForm);
+function UserForm({ onSubmit }) {
+  const { form, setForm, handleChange, addPhoneNumber, initialState } =
+    useUserForm();
 
-  const inputClassName = (name) => {
-    return `user-form-input ${
-      error[name] && form.dirty[name] && form.touched[name] ? "input-error" : ""
-    }`;
-  };
-
+  const { checkIsFormValid  } = useUserValidation(form, setForm);
+  console.log("isFormValid12",checkIsFormValid ())
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormValid) {
+    if (checkIsFormValid ()) {
       onSubmit(form.values);
       window.localStorage.setItem("userformData", JSON.stringify(form));
       setForm(() => JSON.parse(JSON.stringify(initialState)));
@@ -43,46 +30,31 @@ function UserForm({ onSubmit }) {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="user-form-container"
-      style={{
-        maxWidth: 600,
-        margin: "0 40px",
-        background: "#fff",
-        borderRadius: 12,
-        boxShadow: "0 2px 12px #0001",
-        padding: 32,
-      }}
-    >
+    <form onSubmit={handleSubmit} className="user-form-container">
       <div className="user-form-title">User Information Form</div>
       <div
         className="user-form-group"
         style={{ display: "flex", flexDirection: "column", gap: 18 }}
       >
-
-       {
-        formSchema.map((fieldName)=>{
-          return <FormField
-                  label={fieldName}
-                  value={form.values[fieldName]}
-                  formState= {{form,setForm}}
-                  onchange={handleChange}
-                  className={inputClassName(fieldName)}
-                  onBlur={runErrorChecks}
-                  validation ={{error,errorMessages}}
-                  addPhoneNumber ={addPhoneNumber}
-          />
-        })
-       }  
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className="user-form-button"
-        >
-          Submit
-        </button>
+        {formSchema.map((fieldName) => {
+          return (
+            <FormField
+              label={fieldName}
+              value={form.values[fieldName]}
+              formState={{ form, setForm }}
+              onchange={handleChange}
+              addPhoneNumber={addPhoneNumber}
+            />
+          );
+        })}
       </div>
+      <button
+        type="submit"
+        disabled={!checkIsFormValid ()}
+        className="user-form-button"
+      >
+        Submit
+      </button>
     </form>
   );
 }

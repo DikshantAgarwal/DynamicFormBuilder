@@ -1,31 +1,22 @@
-import React, { useState } from "react";
-
-const initialErrorState = {
-  name: "",
-  role: "",
-  bio: "",
-  avatarUrl: "",
-  phoneNumbers: [],
-  skills: { max: false, min: false, duplicate: false },
-};
+import React from "react";
 
 const errorMessages = {
-  bio: "Bio must be at least 10 character long.",
-  name: "Too short name,atleast  3 characters required",
-  role: "min 2 characters required",
+  bio: "Bio must be at least 10 characters long.",
+  name: "Too short name, at least 3 characters required",
+  role: "Min 2 characters required",
   email: "Invalid Email format",
   phoneNumbers: "Invalid Phone Number",
   avatarUrl: "Invalid URL format",
   skills: {
     max: "Maximum 5 skills can be added",
-    min: "Atleast 1 skill is required",
+    min: "At least 1 skill is required",
     duplicate: "Duplicate skills are not allowed",
   },
 };
 
 const validators = {
   name: (value) => (value.trim().length < 3 ? errorMessages.name : ""),
-  role: (value) => (value.trim().length < 3 ? errorMessages.role : ""),
+  role: (value) => (value.trim().length < 2 ? errorMessages.role : ""),
   bio: (value) => (value.trim().length < 10 ? errorMessages.bio : ""),
   avatarUrl: (value) => {
     try {
@@ -37,20 +28,24 @@ const validators = {
   },
   phoneNumbers: (phones) => {
     const phoneRegex = /^\+?[0-9\s\-]{7,15}$/;
-    return phones.some((p) => !phoneRegex.test(p))
-      ? errorMessages.phoneNumbers
-      : "";
+    return phones.map((p) => (!phoneRegex.test(p) ? errorMessages.phoneNumbers : ""));
   },
   skills: (skills) => ({
     max: skills.length > 5,
     min: skills.length < 1,
-    duplicate:
-      new Set(skills.map((s) => s.toLowerCase())).size !== skills.length,
+    duplicate: new Set(skills.map((s) => s.toLowerCase())).size !== skills.length,
   }),
 };
 
 function useUserValidation(form, setForm) {
-  const [error, setError] = useState(initialErrorState);
+  const [error, setError] = React.useState({
+    name: "",
+    role: "",
+    bio: "",
+    avatarUrl: "",
+    phoneNumbers: [],
+    skills: { max: false, min: false, duplicate: false },
+  });
 
   const runErrorChecks = (e) => {
     const { name, value } = e.target;
@@ -59,40 +54,41 @@ function useUserValidation(form, setForm) {
 
     const errorResult =
       name === "skills"
-        ? validator([...form.values.skills,value])
+        ? validator([...form.values.skills, value])
         : validator(name === "phoneNumbers" ? form.values.phoneNumbers : value);
-        console.log(errorResult,value,value.trim.length)
-        setError((prev) => ({ ...prev, [name]: errorResult }));
-        setForm((prev) => ({
+
+    setError((prev) => {
+      if (name === "skills") {
+        return { ...prev, skills: { ...prev.skills, ...errorResult } };
+      }
+      if (name === "phoneNumbers") {
+        return { ...prev, phoneNumbers: [...errorResult] };
+      }
+      return { ...prev, [name]: errorResult };
+    });
+
+    setForm((prev) => ({
       ...prev,
       touched: { ...prev.touched, [name]: true },
     }));
   };
 
-  const isFormValid =
-    Object.values(form.values).every((val) => {
-      if (Array.isArray(val)) {
-        if (val.length === 0) {
-          return false;
-        } else {
-          return val.every((item) => item.trim() !== "");
-        }
-      }
+  const checkIsFormValid = () => {
+    const valuesValid = Object.values(form.values).every((val) => {
+      if (Array.isArray(val)) return val.length > 0 && val.every((v) => v.trim() !== "");
       return val.trim() !== "";
-    }) &&
-    Object.values(error).every((err) => {
-      if (typeof err === "object") {
-        return Object.values(err).every((e) => e === false);
-      }
+    });
+
+    const errorsValid = Object.values(error).every((err) => {
+      if (Array.isArray(err)) return err.every((e) => !e); // empty strings
+      if (typeof err === "object" && err !== null) return Object.values(err).every((e) => e === false);
       return err === "";
     });
 
-  return {
-    errorMessages,
-    runErrorChecks,
-    isFormValid,
-    error,
+    return valuesValid && errorsValid;
   };
+
+  return { error, errorMessages, runErrorChecks, checkIsFormValid };
 }
 
 export { useUserValidation };
