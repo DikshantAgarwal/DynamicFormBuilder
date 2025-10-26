@@ -47,6 +47,13 @@ function useUserValidation(form, setForm) {
     skills: { max: false, min: false, duplicate: false },
   });
 
+
+ React.useEffect(() => {
+  console.log("%cuseUserValidation MOUNTED", "color: orange;");
+  return () => console.log("%cuseUserValidation UNMOUNTED", "color: red;");
+});
+
+
   const runErrorChecks = (e) => {
     const { name, value } = e.target;
     const validator = validators[name];
@@ -56,7 +63,7 @@ function useUserValidation(form, setForm) {
       name === "skills"
         ? validator([...form.values.skills, value])
         : validator(name === "phoneNumbers" ? form.values.phoneNumbers : value);
-
+     
     setError((prev) => {
       if (name === "skills") {
         return { ...prev, skills: { ...prev.skills, ...errorResult } };
@@ -73,20 +80,19 @@ function useUserValidation(form, setForm) {
     }));
   };
 
-  const checkIsFormValid = () => {
+  const checkIsFormValid = React.useMemo(()=>{
     const valuesValid = Object.values(form.values).every((val) => {
       if (Array.isArray(val)) return val.length > 0 && val.every((v) => v.trim() !== "");
       return val.trim() !== "";
     });
 
     const errorsValid = Object.values(error).every((err) => {
-      if (Array.isArray(err)) return err.every((e) => !e); // empty strings
+      if (Array.isArray(err)) return err.every((e) => e===""); // empty strings
       if (typeof err === "object" && err !== null) return Object.values(err).every((e) => e === false);
       return err === "";
     });
-
     return valuesValid && errorsValid;
-  };
+  },[form.values,error]);
 
   return { error, errorMessages, runErrorChecks, checkIsFormValid };
 }

@@ -13,15 +13,14 @@ const formSchema = [
 ];
 
 function UserForm({ onSubmit }) {
-  const { form, setForm, handleChange, addPhoneNumber, initialState } =
-    useUserForm();
+  const { form, setForm, handleChange, addPhoneNumber, initialState } = useUserForm();
 
-  const { checkIsFormValid  } = useUserValidation(form, setForm);
-  console.log("isFormValid12",checkIsFormValid ())
+  const { runErrorChecks,  errorMessages, error ,checkIsFormValid} = useUserValidation(form, setForm);
+ 
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (checkIsFormValid ()) {
+    if (checkIsFormValid) {
       onSubmit(form.values);
       window.localStorage.setItem("userformData", JSON.stringify(form));
       setForm(() => JSON.parse(JSON.stringify(initialState)));
@@ -41,7 +40,11 @@ function UserForm({ onSubmit }) {
             <FormField
               label={fieldName}
               value={form.values[fieldName]}
-              formState={{ form, setForm }}
+              errorMessages={errorMessages}
+              runErrorChecks={runErrorChecks}
+              error={error}
+              form={form}
+              setForm={setForm}
               onchange={handleChange}
               addPhoneNumber={addPhoneNumber}
             />
@@ -50,7 +53,7 @@ function UserForm({ onSubmit }) {
       </div>
       <button
         type="submit"
-        disabled={!checkIsFormValid ()}
+        disabled={!checkIsFormValid}
         className="user-form-button"
       >
         Submit
