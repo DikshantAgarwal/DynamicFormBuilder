@@ -12,21 +12,14 @@
     error,
     errorMessages,
     onchange,
+    handleBlur,
   }) => {
    
-
-    const inputClassName = () => {
-      return `user-form-input ${
-        isError() ? "input-error" : ""
-      }`;
-    };
-
-  
     const isError = () =>{
       const isFieldVisited =  form.dirty[label] && form.touched[label];
 
       if(Array.isArray(error[label])){
-        return error[label].length > 0 && isFieldVisited && error[label].some((e)=>e!=="")
+        return  isFieldVisited && error[label].some((e)=>e!=="")
       }
       if(typeof error[label] ==="object" &&  error[label] !== null) {
       return  Object.values(error[label]).some((s)=>s)
@@ -35,16 +28,24 @@
       return error[label] && isFieldVisited;
     }
 
+   const inputClassName =`${ isError() ? "input-error" : ""}`;
+   const inputProps = {
+    name: label,
+    value,
+    onChange: onchange,
+    onBlur: (e) => {
+      runErrorChecks(e);
+      handleBlur(label);
+    },
+    className: `user-form-input ${inputClassName}`,
+   }
+
     const fields = (label) => {
       switch (label) {
         case "bio":
           return (
             <textarea
-              name="bio"
-              className={inputClassName()}
-              value={value}
-              onChange={onchange}
-              onBlur={runErrorChecks}
+              {...inputProps}
               placeholder="A short bio about yourself"
               required
             />
@@ -52,8 +53,9 @@
         case "phoneNumbers":
           return (
             <PhoneNumberFields
-              className={inputClassName()}
+              className={inputClassName}
               onBlur={runErrorChecks}
+              error={error.phoneNumbers}
               updateForm={setForm}
               form={form}
             />
@@ -64,7 +66,7 @@
               form={form}
               updateForm={setForm}
               onBlur={runErrorChecks}
-              className={inputClassName()}
+              className={inputClassName}
               error={error.skills}
               errorMessages={errorMessages}
             />
@@ -73,12 +75,7 @@
         default:
           return (
             <input
-              name={label}
-              type="text"
-              className={inputClassName()}
-              value={value}
-              onBlur={runErrorChecks}
-              onChange={onchange}
+              {...inputProps}
               required
             />
           );

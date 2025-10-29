@@ -37,7 +37,7 @@ const validators = {
   }),
 };
 
-function useUserValidation(form, setForm) {
+function useUserValidation(values) {
   const [error, setError] = React.useState({
     name: "",
     role: "",
@@ -54,15 +54,15 @@ function useUserValidation(form, setForm) {
 });
 
 
-  const runErrorChecks = (e) => {
+  const runErrorChecks = React.useCallback((e) => {
     const { name, value } = e.target;
     const validator = validators[name];
     if (!validator) return;
 
     const errorResult =
       name === "skills"
-        ? validator([...form.values.skills, value])
-        : validator(name === "phoneNumbers" ? form.values.phoneNumbers : value);
+        ? validator([...values.skills, value])
+        : validator(name === "phoneNumbers" ? values.phoneNumbers : value);
      
     setError((prev) => {
       if (name === "skills") {
@@ -73,15 +73,10 @@ function useUserValidation(form, setForm) {
       }
       return { ...prev, [name]: errorResult };
     });
-
-    setForm((prev) => ({
-      ...prev,
-      touched: { ...prev.touched, [name]: true },
-    }));
-  };
+  },[values]);
 
   const checkIsFormValid = React.useMemo(()=>{
-    const valuesValid = Object.values(form.values).every((val) => {
+    const valuesValid = Object.values(values).every((val) => {
       if (Array.isArray(val)) return val.length > 0 && val.every((v) => v.trim() !== "");
       return val.trim() !== "";
     });
@@ -92,7 +87,7 @@ function useUserValidation(form, setForm) {
       return err === "";
     });
     return valuesValid && errorsValid;
-  },[form.values,error]);
+  },[values,error]);
 
   return { error, errorMessages, runErrorChecks, checkIsFormValid };
 }

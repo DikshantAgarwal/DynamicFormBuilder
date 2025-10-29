@@ -13,9 +13,9 @@ const formSchema = [
 ];
 
 function UserForm({ onSubmit }) {
-  const { form, setForm, handleChange, addPhoneNumber, initialState } = useUserForm();
+  const { form, setForm, handleChange, addPhoneNumber, initialState ,handleBlur} = useUserForm();
 
-  const { runErrorChecks,  errorMessages, error ,checkIsFormValid} = useUserValidation(form, setForm);
+  const { runErrorChecks,  errorMessages, error ,checkIsFormValid} = useUserValidation(form.values);
  
   
   const handleSubmit = (e) => {
@@ -42,6 +42,7 @@ function UserForm({ onSubmit }) {
               value={form.values[fieldName]}
               errorMessages={errorMessages}
               runErrorChecks={runErrorChecks}
+              handleBlur={handleBlur}
               error={error}
               form={form}
               setForm={setForm}

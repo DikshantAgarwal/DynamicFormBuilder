@@ -7,7 +7,7 @@ const initialState = {
     location: "",
     bio: "",
     phoneNumbers: [""],
-    skills: [],
+    skills: {},
   },
   dirty: {
     name: false,
@@ -50,9 +50,17 @@ function useUserForm() {
   };
 
 
+  const handleBlur =(name) =>{
+       setForm((prev) => ({
+      ...prev,
+      touched: { ...prev.touched, [name]: true },
+    }));
+  }
+
 
   return {
     form,
+    handleBlur,
     setForm,
     handleChange,
     initialState,
